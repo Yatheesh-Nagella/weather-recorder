@@ -83,7 +83,7 @@
     "area": "deployment",
     "title": "DigitalOcean deployment with systemd",
     "user_visible_behavior": "The app is live at http://137.184.108.210:8000 and survives a server reboot",
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "weather-recorder.service file exists in project root",
       "scripts/deploy.sh exists and contains all setup steps",
@@ -92,7 +92,7 @@
       "SSH in and run: systemctl status weather-recorder — confirm active (running)",
       "SSH in and run: sudo reboot, wait 60s, then curl again to confirm it survived reboot"
     ],
-    "evidence": "",
+    "evidence": "Service active (running) after reboot at 2026-06-29T20:36:40 UTC. curl http://localhost:8000/api/history returns JSON with real data. Both uvicorn workers started. curl http://137.184.108.210:8000/api/history responds from external network.",
     "notes": "See docs/deploy.md for server details and full step-by-step instructions. Credentials are not stored in source control."
   },
   {

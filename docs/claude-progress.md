@@ -23,6 +23,18 @@
 
 ## Session Records
 
+### Session 8 — deploy verified + all features passing
+
+- **Goal:** Verify live deployment survives reboot
+- **Completed:** Rebooted droplet, confirmed weather-recorder.service started automatically. History endpoint returned real data. All 7 features now passing.
+- **Verification run:** systemctl status → active (running) at 20:36:40 UTC post-reboot. curl /api/history → 11 rows returned. External URL responds.
+- **Evidence:** Service PID 907, 2 uvicorn workers, 138MB memory, requests logged in journalctl.
+- **Commits:** chore: mark deploy passing, all features complete
+- **Known risks:** None
+- **Next best action:** Submit to employer
+
+---
+
 ### Session 7 — post-review polish
 
 - **Goal:** Apply improvements flagged in peer review before submission
