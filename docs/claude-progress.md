@@ -7,7 +7,7 @@
 | Repository root | `weather-recorder/` |
 | Start command | `uvicorn backend.main:app --reload --port 8000` |
 | Verification command | `bash init.sh` |
-| Highest priority unfinished feature | `deploy` |
+| Highest priority unfinished feature | `deploy` (server-side steps pending) |
 | Current blocker | None |
 
 ---
@@ -22,6 +22,18 @@
 ---
 
 ## Session Records
+
+### Session 6 — readme and AI workflow docs
+
+- **Goal:** Complete README.md and AI_WORKFLOW.md as required deliverables
+- **Completed:** README.md (setup, endpoints, schema, deployment, trade-offs, future improvements). AI_WORKFLOW.md (specific prompts, session workflow, what was reviewed manually).
+- **Verification run:** Files created and reviewed
+- **Evidence:** All assignment deliverable requirements covered in both documents
+- **Commits:** docs: add README and AI_WORKFLOW
+- **Known risks:** None
+- **Next best action:** SSH into droplet and run deploy.sh + install_service.sh
+
+---
 
 ### Session 5 — frontend
 

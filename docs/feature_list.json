@@ -101,13 +101,13 @@
     "area": "docs",
     "title": "README and AI workflow documentation",
     "user_visible_behavior": "README explains how to set up and run the project locally and on the server. AI_WORKFLOW.md documents how Claude Code was used.",
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "README.md exists with: setup steps, environment variables, how to run locally, how to deploy",
       "AI_WORKFLOW.md exists with: tools used, prompts used per feature, what was reviewed manually",
       "A Future Improvements section exists in README"
     ],
-    "evidence": "",
+    "evidence": "README.md and AI_WORKFLOW.md created. README covers setup, endpoints, schema, deployment, API choice, trade-offs, and future improvements. AI_WORKFLOW.md documents specific prompts and workflows used with Claude Code.",
     "notes": "Graders explicitly want to know how AI tools were used. AI_WORKFLOW.md is a required deliverable."
   }
 ]
