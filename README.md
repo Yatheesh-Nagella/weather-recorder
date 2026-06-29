@@ -197,6 +197,7 @@ See `AI_WORKFLOW.md` for a detailed account of specific prompts and workflows us
 | City name search only | Open-Meteo geocoder is name-based; zip code support would require a different geocoder |
 | Single-file frontend | No build step, no dependencies, trivial to serve from FastAPI |
 | `ON CONFLICT DO UPDATE` on cities | Same city searched multiple times stays one row in `cities`, many rows in `search_history` |
+| Shared search history | All users see the same history feed — no authentication or session isolation. Per-session isolation would require auth or an anonymous session token. |
 | `psycopg2-binary` | Bundles PostgreSQL client libs — no system-level dev headers needed |
 
 ---

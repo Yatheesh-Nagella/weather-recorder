@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from backend.db import get_conn, init_db
-from backend.weather import CityNotFound, WeatherAPIError, fetch_weather, geocode
+from backend.weather import CityNotFound, WeatherAPIError, fetch_weather, geocode, suggest
 
 load_dotenv()
 
@@ -26,11 +26,24 @@ app = FastAPI(lifespan=lifespan)
 
 class SearchRequest(BaseModel):
     city: str
+    latitude: float | None = None
+    longitude: float | None = None
+    country: str | None = None
 
 
 @app.get("/")
 def serve_frontend():
     return FileResponse(FRONTEND)
+
+
+@app.get("/api/suggest")
+async def suggest_cities(q: str = ""):
+    if len(q.strip()) < 2:
+        return []
+    try:
+        return await suggest(q.strip())
+    except WeatherAPIError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
 
 
 @app.get("/api/history")
@@ -69,12 +82,20 @@ async def search(req: SearchRequest):
     if not req.city.strip():
         raise HTTPException(status_code=400, detail="city is required")
 
-    try:
-        location = await geocode(req.city)
-    except CityNotFound:
-        raise HTTPException(status_code=404, detail=f"City not found: {req.city}")
-    except WeatherAPIError as exc:
-        raise HTTPException(status_code=502, detail=str(exc))
+    if req.latitude is not None and req.longitude is not None:
+        location = {
+            "name": req.city,
+            "country": req.country,
+            "latitude": req.latitude,
+            "longitude": req.longitude,
+        }
+    else:
+        try:
+            location = await geocode(req.city)
+        except CityNotFound:
+            raise HTTPException(status_code=404, detail=f"City not found: {req.city}")
+        except WeatherAPIError as exc:
+            raise HTTPException(status_code=502, detail=str(exc))
 
     try:
         weather = await fetch_weather(location["latitude"], location["longitude"])

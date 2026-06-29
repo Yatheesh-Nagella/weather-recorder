@@ -26,6 +26,34 @@ class WeatherAPIError(Exception):
     pass
 
 
+async def suggest(query: str) -> list:
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.get(
+                GEOCODING_URL,
+                params={"name": query, "count": 5, "language": "en", "format": "json"},
+            )
+            r.raise_for_status()
+    except httpx.HTTPError as exc:
+        raise WeatherAPIError(str(exc))
+
+    try:
+        results = r.json().get("results") or []
+    except Exception:
+        raise WeatherAPIError("Geocoding API returned an unexpected response")
+
+    return [
+        {
+            "name": hit["name"],
+            "admin1": hit.get("admin1"),
+            "country": hit.get("country_code"),
+            "latitude": hit["latitude"],
+            "longitude": hit["longitude"],
+        }
+        for hit in results
+    ]
+
+
 async def geocode(city: str) -> dict:
     try:
         async with httpx.AsyncClient(timeout=10) as client:

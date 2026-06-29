@@ -23,13 +23,41 @@
       gap: 8px;
     }
 
-    #city-input {
+    #input-wrap {
+      position: relative;
       flex: 1;
+    }
+
+    #city-input {
+      width: 100%;
       padding: 8px 12px;
       font-size: 1rem;
       border: 1px solid #ccc;
       border-radius: 4px;
     }
+
+    #suggest-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      list-style: none;
+      z-index: 100;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    #suggest-list li {
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    #suggest-list li:hover { background: #f0f0f0; }
 
     button {
       padding: 8px 18px;
@@ -109,7 +137,10 @@
   <h1>Weather Recorder</h1>
 
   <form id="search-form">
-    <input id="city-input" type="text" placeholder="Enter a city name…" autocomplete="off" required />
+    <div id="input-wrap">
+      <input id="city-input" type="text" placeholder="Enter a city name…" autocomplete="off" required />
+      <ul id="suggest-list" hidden></ul>
+    </div>
     <button id="search-btn" type="submit">Search</button>
   </form>
 
@@ -145,14 +176,18 @@
   </table>
 
   <script>
-    const form      = document.getElementById('search-form');
-    const input     = document.getElementById('city-input');
-    const btn       = document.getElementById('search-btn');
-    const errorBox  = document.getElementById('error');
-    const result    = document.getElementById('result');
-    const histTable = document.getElementById('history-table');
-    const histBody  = document.getElementById('history-body');
-    const emptyMsg  = document.getElementById('empty-history');
+    const form       = document.getElementById('search-form');
+    const input      = document.getElementById('city-input');
+    const btn        = document.getElementById('search-btn');
+    const errorBox   = document.getElementById('error');
+    const result     = document.getElementById('result');
+    const histTable  = document.getElementById('history-table');
+    const histBody   = document.getElementById('history-body');
+    const emptyMsg   = document.getElementById('empty-history');
+    const suggestList = document.getElementById('suggest-list');
+
+    let selectedLoc = null;
+    let debounceTimer = null;
 
     function showError(msg) {
       errorBox.textContent = msg;
@@ -168,14 +203,57 @@
       return new Date(iso).toLocaleString();
     }
 
+    function formatLoc(item) {
+      const parts = [item.name];
+      if (item.admin1) parts.push(item.admin1);
+      if (item.country) parts.push(item.country);
+      return parts.join(', ');
+    }
+
+    function clearSuggest() {
+      suggestList.innerHTML = '';
+      suggestList.hidden = true;
+    }
+
+    input.addEventListener('input', () => {
+      selectedLoc = null;
+      clearSuggest();
+      const q = input.value.trim();
+      if (q.length < 2) return;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/suggest?q=${encodeURIComponent(q)}`);
+          if (!res.ok) return;
+          const items = await res.json();
+          if (!items.length) { clearSuggest(); return; }
+          suggestList.innerHTML = '';
+          items.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = formatLoc(item);
+            li.addEventListener('mousedown', (e) => {
+              e.preventDefault();
+              selectedLoc = item;
+              input.value = formatLoc(item);
+              clearSuggest();
+            });
+            suggestList.appendChild(li);
+          });
+          suggestList.hidden = false;
+        } catch { /* non-fatal */ }
+      }, 300);
+    });
+
+    input.addEventListener('blur', () => setTimeout(clearSuggest, 150));
+
     function renderResult(data) {
       document.getElementById('result-heading').textContent =
         `${data.city}${data.country ? ', ' + data.country : ''}`;
-      document.getElementById('r-temp').textContent    = `${data.temperature_c} °C`;
-      document.getElementById('r-feels').textContent   = `${data.feels_like_c} °C`;
+      document.getElementById('r-temp').textContent     = `${data.temperature_c} °C`;
+      document.getElementById('r-feels').textContent    = `${data.feels_like_c} °C`;
       document.getElementById('r-humidity').textContent = `${data.humidity_pct}%`;
-      document.getElementById('r-wind').textContent    = `${data.wind_speed_kmh} km/h`;
-      document.getElementById('r-desc').textContent    = data.weather_desc;
+      document.getElementById('r-wind').textContent     = `${data.wind_speed_kmh} km/h`;
+      document.getElementById('r-desc').textContent     = data.weather_desc;
       result.hidden = false;
     }
 
@@ -213,22 +291,29 @@
         const res = await fetch('/api/history');
         if (!res.ok) throw new Error('Failed to load history');
         renderHistory(await res.json());
-      } catch {
-        // non-fatal — history section stays empty
-      }
+      } catch { /* non-fatal */ }
     }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       clearError();
+      clearSuggest();
       result.hidden = true;
       btn.disabled  = true;
+
+      const body = { city: selectedLoc ? selectedLoc.name : input.value.trim() };
+      if (selectedLoc) {
+        body.latitude  = selectedLoc.latitude;
+        body.longitude = selectedLoc.longitude;
+        body.country   = selectedLoc.country;
+      }
+      selectedLoc = null;
 
       try {
         const res = await fetch('/api/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ city: input.value.trim() }),
+          body: JSON.stringify(body),
         });
 
         const data = await res.json();
