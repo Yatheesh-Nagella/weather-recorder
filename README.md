@@ -4,6 +4,15 @@ A full-stack web app that searches for current weather by city name, saves resul
 
 **Live:** http://137.184.108.210:8000
 
+## Project Features
+
+- Search current weather by city name with autocomplete disambiguation
+- Saves every search to PostgreSQL across two related tables
+- View a shared history of the last 50 searches
+- Raw SQL with a JOIN query — no ORM
+- Full error handling: invalid city, API failure, database error
+- Deployable as a systemd service that survives reboots
+
 ---
 
 ## Stack
@@ -154,6 +163,19 @@ DB_PASS=your_db_password bash scripts/deploy.sh
 bash scripts/install_service.sh
 ```
 
+### Verify deployment
+
+```bash
+# Confirm service is active
+systemctl status weather-recorder
+
+# Confirm API responds
+curl http://localhost:8000/api/history
+
+# Confirm frontend loads
+curl -s http://localhost:8000 | head -5
+```
+
 ### Useful server commands
 
 ```bash
@@ -164,9 +186,6 @@ journalctl -u weather-recorder -f
 cd /tmp/weather-recorder && git pull
 cp -r backend frontend /opt/weather-recorder/
 systemctl restart weather-recorder
-
-# Check service status
-systemctl status weather-recorder
 ```
 
 ---

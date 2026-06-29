@@ -7,7 +7,7 @@
 | Repository root | `weather-recorder/` |
 | Start command | `uvicorn backend.main:app --reload --port 8000` |
 | Verification command | `bash init.sh` |
-| Highest priority unfinished feature | `deploy` (server-side steps pending) |
+| Highest priority unfinished feature | None — all features passing |
 | Current blocker | None |
 
 ---
@@ -22,6 +22,18 @@
 ---
 
 ## Session Records
+
+### Session 7 — post-review polish
+
+- **Goal:** Apply improvements flagged in peer review before submission
+- **Completed:** README — added Project Features section and Verify Deployment section. AI_WORKFLOW.md — replaced "reducing hallucination" with precise wording. Confirmed .env and .venv are not tracked in git.
+- **Verification run:** git ls-files confirms no secrets or venv committed
+- **Evidence:** All review checklist items addressed
+- **Commits:** docs: polish README and AI_WORKFLOW based on peer review
+- **Known risks:** None
+- **Next best action:** Reboot test on droplet, then submit
+
+---
 
 ### Session 6 — readme and AI workflow docs
 

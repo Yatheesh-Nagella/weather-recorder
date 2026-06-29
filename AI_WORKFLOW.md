@@ -20,7 +20,7 @@ Before writing any code, a `CLAUDE.md` file was created in the project root. Thi
 - Error handling requirements (which HTTP status codes map to which conditions)
 - A working discipline: one feature at a time, verify syntax after every file, update progress docs after every feature
 
-This approach meant Claude Code had a consistent, unambiguous specification to work from — reducing hallucination and keeping every session on track regardless of context drift.
+This approach meant Claude Code had a consistent, unambiguous specification to work from — maintaining project context across sessions and keeping every implementation decision aligned with the original spec.
 
 ---
 
