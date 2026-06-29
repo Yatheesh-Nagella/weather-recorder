@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather Recorder</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 860px;
+      margin: 40px auto;
+      padding: 0 20px;
+      color: #222;
+    }
+
+    h1 { font-size: 1.6rem; margin-bottom: 24px; }
+    h2 { font-size: 1.1rem; margin: 32px 0 12px; }
+
+    #search-form {
+      display: flex;
+      gap: 8px;
+    }
+
+    #city-input {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 8px 18px;
+      font-size: 1rem;
+      cursor: pointer;
+      border: 1px solid #555;
+      border-radius: 4px;
+      background: #333;
+      color: #fff;
+    }
+
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    #error {
+      margin-top: 14px;
+      padding: 10px 14px;
+      background: #fff0f0;
+      border: 1px solid #f99;
+      border-radius: 4px;
+      color: #c00;
+    }
+
+    #result {
+      margin-top: 20px;
+      padding: 16px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background: #fafafa;
+    }
+
+    #result h2 { margin-top: 0; font-size: 1.2rem; }
+
+    .weather-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .weather-item label {
+      display: block;
+      font-size: 0.75rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .weather-item span {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    th { background: #f4f4f4; font-weight: 600; }
+    tr:hover td { background: #fafafa; }
+
+    #empty-history {
+      color: #888;
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Weather Recorder</h1>
+
+  <form id="search-form">
+    <input id="city-input" type="text" placeholder="Enter a city name…" autocomplete="off" required />
+    <button id="search-btn" type="submit">Search</button>
+  </form>
+
+  <div id="error" hidden></div>
+
+  <div id="result" hidden>
+    <h2 id="result-heading"></h2>
+    <div class="weather-grid">
+      <div class="weather-item"><label>Temperature</label><span id="r-temp"></span></div>
+      <div class="weather-item"><label>Feels Like</label><span id="r-feels"></span></div>
+      <div class="weather-item"><label>Humidity</label><span id="r-humidity"></span></div>
+      <div class="weather-item"><label>Wind Speed</label><span id="r-wind"></span></div>
+      <div class="weather-item"><label>Condition</label><span id="r-desc"></span></div>
+    </div>
+  </div>
+
+  <h2>Search History</h2>
+  <p id="empty-history" hidden>No searches yet.</p>
+  <table id="history-table" hidden>
+    <thead>
+      <tr>
+        <th>City</th>
+        <th>Country</th>
+        <th>Temp (°C)</th>
+        <th>Feels Like (°C)</th>
+        <th>Humidity (%)</th>
+        <th>Wind (km/h)</th>
+        <th>Condition</th>
+        <th>Searched At</th>
+      </tr>
+    </thead>
+    <tbody id="history-body"></tbody>
+  </table>
+
+  <script>
+    const form      = document.getElementById('search-form');
+    const input     = document.getElementById('city-input');
+    const btn       = document.getElementById('search-btn');
+    const errorBox  = document.getElementById('error');
+    const result    = document.getElementById('result');
+    const histTable = document.getElementById('history-table');
+    const histBody  = document.getElementById('history-body');
+    const emptyMsg  = document.getElementById('empty-history');
+
+    function showError(msg) {
+      errorBox.textContent = msg;
+      errorBox.hidden = false;
+    }
+
+    function clearError() {
+      errorBox.hidden = true;
+      errorBox.textContent = '';
+    }
+
+    function formatDate(iso) {
+      return new Date(iso).toLocaleString();
+    }
+
+    function renderResult(data) {
+      document.getElementById('result-heading').textContent =
+        `${data.city}${data.country ? ', ' + data.country : ''}`;
+      document.getElementById('r-temp').textContent    = `${data.temperature_c} °C`;
+      document.getElementById('r-feels').textContent   = `${data.feels_like_c} °C`;
+      document.getElementById('r-humidity').textContent = `${data.humidity_pct}%`;
+      document.getElementById('r-wind').textContent    = `${data.wind_speed_kmh} km/h`;
+      document.getElementById('r-desc').textContent    = data.weather_desc;
+      result.hidden = false;
+    }
+
+    function renderHistory(rows) {
+      histBody.innerHTML = '';
+      if (!rows.length) {
+        histTable.hidden = true;
+        emptyMsg.hidden  = false;
+        return;
+      }
+      emptyMsg.hidden  = true;
+      histTable.hidden = false;
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.city}</td>
+          <td>${row.country ?? '—'}</td>
+          <td>${row.temperature_c}</td>
+          <td>${row.feels_like_c}</td>
+          <td>${row.humidity_pct}</td>
+          <td>${row.wind_speed_kmh}</td>
+          <td>${row.weather_desc}</td>
+          <td>${formatDate(row.searched_at)}</td>
+        `;
+        histBody.appendChild(tr);
+      });
+    }
+
+    async function loadHistory() {
+      try {
+        const res = await fetch('/api/history');
+        if (!res.ok) throw new Error('Failed to load history');
+        renderHistory(await res.json());
+      } catch {
+        // non-fatal — history section stays empty
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError();
+      result.hidden = true;
+      btn.disabled  = true;
+
+      try {
+        const res = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ city: input.value.trim() }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          showError(data.detail ?? 'Something went wrong.');
+          return;
+        }
+
+        renderResult(data);
+        input.value = '';
+        await loadHistory();
+      } catch {
+        showError('Could not reach the server. Please try again.');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    loadHistory();
+  </script>
+
+</body>
+</html>

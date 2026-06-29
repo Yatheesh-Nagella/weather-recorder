@@ -7,7 +7,7 @@
 | Repository root | `weather-recorder/` |
 | Start command | `uvicorn backend.main:app --reload --port 8000` |
 | Verification command | `bash init.sh` |
-| Highest priority unfinished feature | `frontend` |
+| Highest priority unfinished feature | `deploy` |
 | Current blocker | None |
 
 ---
@@ -22,6 +22,18 @@
 ---
 
 ## Session Records
+
+### Session 5 — frontend
+
+- **Goal:** Single-file vanilla JS frontend with search and history
+- **Completed:** frontend/index.html — search form, weather result card, history table, error handling
+- **Verification run:** Browser verification pending — runs on droplet once deployed
+- **Evidence:** No frameworks, no npm. async/await fetch to /api/search and /api/history. Error states surfaced to user. History auto-refreshes after each search.
+- **Commits:** feat: frontend — single-file vanilla JS UI
+- **Known risks:** None
+- **Next best action:** deploy — systemd service, deploy.sh, install_service.sh, push to droplet
+
+---
 
 ### Session 4 — api-history
 

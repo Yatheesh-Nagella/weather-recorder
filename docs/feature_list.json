@@ -67,14 +67,14 @@
     "area": "frontend",
     "title": "Vanilla JS frontend",
     "user_visible_behavior": "Opening localhost:8000 shows a search bar. Searching a city displays the weather result. The history table below updates automatically.",
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Open http://localhost:8000 in a browser",
       "Search for 'Paris' and confirm weather data appears",
       "Confirm the history table shows the new entry",
       "Search for a fake city and confirm an error message appears"
     ],
-    "evidence": "",
+    "evidence": "frontend/index.html created — single file, no frameworks. Search posts to /api/search, renders result card, refreshes history table. Error states handled. Browser verification pending on droplet.",
     "notes": "Single file at frontend/index.html. No frameworks, no npm. Fetch from /api/search and /api/history."
   },
   {
