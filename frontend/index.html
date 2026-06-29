@@ -190,16 +190,20 @@
       histTable.hidden = false;
       rows.forEach(row => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${row.city}</td>
-          <td>${row.country ?? '—'}</td>
-          <td>${row.temperature_c}</td>
-          <td>${row.feels_like_c}</td>
-          <td>${row.humidity_pct}</td>
-          <td>${row.wind_speed_kmh}</td>
-          <td>${row.weather_desc}</td>
-          <td>${formatDate(row.searched_at)}</td>
-        `;
+        [
+          row.city,
+          row.country ?? '—',
+          row.temperature_c,
+          row.feels_like_c,
+          row.humidity_pct,
+          row.wind_speed_kmh,
+          row.weather_desc,
+          formatDate(row.searched_at),
+        ].forEach(val => {
+          const td = document.createElement('td');
+          td.textContent = val;
+          tr.appendChild(td);
+        });
         histBody.appendChild(tr);
       });
     }

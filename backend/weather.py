@@ -37,7 +37,10 @@ async def geocode(city: str) -> dict:
     except httpx.HTTPError as exc:
         raise WeatherAPIError(str(exc))
 
-    results = r.json().get("results")
+    try:
+        results = r.json().get("results")
+    except Exception:
+        raise WeatherAPIError("Geocoding API returned an unexpected response")
     if not results:
         raise CityNotFound(city)
 
@@ -64,7 +67,10 @@ async def fetch_weather(latitude: float, longitude: float) -> dict:
     except httpx.HTTPError as exc:
         raise WeatherAPIError(str(exc))
 
-    current = r.json().get("current", {})
+    try:
+        current = r.json().get("current", {})
+    except Exception:
+        raise WeatherAPIError("Weather API returned an unexpected response")
     code = current.get("weather_code", 0)
     return {
         "temperature_c": current.get("temperature_2m"),
