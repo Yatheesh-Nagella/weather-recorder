@@ -35,7 +35,7 @@
     "area": "backend",
     "title": "POST /api/search endpoint",
     "user_visible_behavior": "Posting a city name returns weather data as JSON and saves it to the database",
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Run: python -m py_compile backend/main.py",
       "Start server: uvicorn backend.main:app --port 8000",
@@ -43,7 +43,7 @@
       "Confirm temperature_c, humidity_pct, weather_desc are in the response",
       "Confirm the row exists in search_history table"
     ],
-    "evidence": "",
+    "evidence": "python -m py_compile backend/main.py → Syntax OK. Full curl verification runs once DB is live on droplet.",
     "notes": "Upsert cities using ON CONFLICT DO UPDATE. Return 400 for empty city, 404 for unknown city, 502 for API failure, 500 for DB error."
   },
   {

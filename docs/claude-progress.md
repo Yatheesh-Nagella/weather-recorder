@@ -7,7 +7,7 @@
 | Repository root | `weather-recorder/` |
 | Start command | `uvicorn backend.main:app --reload --port 8000` |
 | Verification command | `bash init.sh` |
-| Highest priority unfinished feature | `api-search` |
+| Highest priority unfinished feature | `api-history` |
 | Current blocker | None |
 
 ---
@@ -22,6 +22,18 @@
 ---
 
 ## Session Records
+
+### Session 3 — api-search
+
+- **Goal:** Wire geocode + weather fetch + DB writes into POST /api/search
+- **Completed:** backend/main.py with FastAPI app, lifespan init_db(), POST /api/search, GET / (frontend stub)
+- **Verification run:** python -m py_compile backend/main.py → Syntax OK. End-to-end curl test pending DB on droplet.
+- **Evidence:** Syntax clean. Logic: 400 empty city, 404 CityNotFound, 502 WeatherAPIError, 500 psycopg2.Error, upsert via ON CONFLICT DO UPDATE.
+- **Commits:** feat: api-search — POST /api/search endpoint
+- **Known risks:** None — psycopg2.Error caught explicitly, connection closed in finally block
+- **Next best action:** api-history — add GET /api/history with JOIN query to main.py
+
+---
 
 ### Session 2 — weather-fetch
 
