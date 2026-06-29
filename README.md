@@ -217,6 +217,7 @@ See `AI_WORKFLOW.md` for a detailed account of specific prompts and workflows us
 | Single-file frontend | No build step, no dependencies, trivial to serve from FastAPI |
 | `ON CONFLICT DO UPDATE` on cities | Same city searched multiple times stays one row in `cities`, many rows in `search_history` |
 | Shared search history | All users see the same history feed — no authentication or session isolation. Per-session isolation would require auth or an anonymous session token. |
+| Cities unique by name + country only | Two cities with the same name in the same country (e.g. Arlington TX vs Arlington VA) share one row in the `cities` table. The history JOIN always reflects the most recently searched region for that name. Fixing this requires a composite unique key on `(name, admin1, country)`. |
 | `psycopg2-binary` | Bundles PostgreSQL client libs — no system-level dev headers needed |
 
 ---
