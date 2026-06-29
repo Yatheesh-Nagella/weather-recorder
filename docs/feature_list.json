@@ -1,0 +1,113 @@
+[
+  {
+    "id": "db-init",
+    "priority": 1,
+    "area": "database",
+    "title": "Database connection and table creation",
+    "user_visible_behavior": "Running init.sh creates the cities and search_history tables in PostgreSQL without errors",
+    "status": "not_started",
+    "verification": [
+      "Run: python -m py_compile backend/db.py",
+      "Run: python -c \"from backend.db import init_db; init_db(); print('OK')\"",
+      "Connect to PostgreSQL and confirm both tables exist"
+    ],
+    "evidence": "",
+    "notes": "Use psycopg2 with RealDictCursor. Read DATABASE_URL from environment. No ORM."
+  },
+  {
+    "id": "weather-fetch",
+    "priority": 2,
+    "area": "weather",
+    "title": "Open-Meteo geocoding and weather fetch",
+    "user_visible_behavior": "Given a city name, the app resolves lat/lon and returns temperature, feels-like, humidity, wind speed, and a weather description",
+    "status": "not_started",
+    "verification": [
+      "Run: python -m py_compile backend/weather.py",
+      "Run: python -c \"import asyncio; from backend.weather import geocode, fetch_weather; print(asyncio.run(geocode('Tokyo')))\"",
+      "Confirm lat, lon, and country code are returned"
+    ],
+    "evidence": "",
+    "notes": "Use httpx async client. Geocoding endpoint: geocoding-api.open-meteo.com. Weather endpoint: api.open-meteo.com. Translate WMO weather codes to human labels."
+  },
+  {
+    "id": "api-search",
+    "priority": 3,
+    "area": "backend",
+    "title": "POST /api/search endpoint",
+    "user_visible_behavior": "Posting a city name returns weather data as JSON and saves it to the database",
+    "status": "not_started",
+    "verification": [
+      "Run: python -m py_compile backend/main.py",
+      "Start server: uvicorn backend.main:app --port 8000",
+      "Run: curl -s -X POST http://localhost:8000/api/search -H 'Content-Type: application/json' -d '{\"city\": \"London\"}' | python -m json.tool",
+      "Confirm temperature_c, humidity_pct, weather_desc are in the response",
+      "Confirm the row exists in search_history table"
+    ],
+    "evidence": "",
+    "notes": "Upsert cities using ON CONFLICT DO UPDATE. Return 400 for empty city, 404 for unknown city, 502 for API failure, 500 for DB error."
+  },
+  {
+    "id": "api-history",
+    "priority": 4,
+    "area": "backend",
+    "title": "GET /api/history endpoint",
+    "user_visible_behavior": "The history endpoint returns a list of past searches including city name and country from the cities table",
+    "status": "not_started",
+    "verification": [
+      "Run: curl -s http://localhost:8000/api/history | python -m json.tool",
+      "Confirm each item includes city, country, temperature_c, and searched_at",
+      "Confirm the SQL query uses a JOIN between search_history and cities"
+    ],
+    "evidence": "",
+    "notes": "Return last 50 results ordered by searched_at DESC. Must use a JOIN — this is a grading requirement."
+  },
+  {
+    "id": "frontend",
+    "priority": 5,
+    "area": "frontend",
+    "title": "Vanilla JS frontend",
+    "user_visible_behavior": "Opening localhost:8000 shows a search bar. Searching a city displays the weather result. The history table below updates automatically.",
+    "status": "not_started",
+    "verification": [
+      "Open http://localhost:8000 in a browser",
+      "Search for 'Paris' and confirm weather data appears",
+      "Confirm the history table shows the new entry",
+      "Search for a fake city and confirm an error message appears"
+    ],
+    "evidence": "",
+    "notes": "Single file at frontend/index.html. No frameworks, no npm. Fetch from /api/search and /api/history."
+  },
+  {
+    "id": "deploy",
+    "priority": 6,
+    "area": "deployment",
+    "title": "DigitalOcean deployment with systemd",
+    "user_visible_behavior": "The app is live at http://137.184.108.210:8000 and survives a server reboot",
+    "status": "not_started",
+    "verification": [
+      "weather-recorder.service file exists in project root",
+      "scripts/deploy.sh exists and contains all setup steps",
+      "Run locally: curl -s http://137.184.108.210:8000/api/history",
+      "Confirm HTTP 200 response from the live server",
+      "SSH in and run: systemctl status weather-recorder — confirm active (running)",
+      "SSH in and run: sudo reboot, wait 60s, then curl again to confirm it survived reboot"
+    ],
+    "evidence": "",
+    "notes": "See docs/deploy.md for server details and full step-by-step instructions. Credentials are not stored in source control."
+  },
+  {
+    "id": "readme",
+    "priority": 7,
+    "area": "docs",
+    "title": "README and AI workflow documentation",
+    "user_visible_behavior": "README explains how to set up and run the project locally and on the server. AI_WORKFLOW.md documents how Claude Code was used.",
+    "status": "not_started",
+    "verification": [
+      "README.md exists with: setup steps, environment variables, how to run locally, how to deploy",
+      "AI_WORKFLOW.md exists with: tools used, prompts used per feature, what was reviewed manually",
+      "A Future Improvements section exists in README"
+    ],
+    "evidence": "",
+    "notes": "Graders explicitly want to know how AI tools were used. AI_WORKFLOW.md is a required deliverable."
+  }
+]
