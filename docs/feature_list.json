@@ -20,13 +20,13 @@
     "area": "weather",
     "title": "Open-Meteo geocoding and weather fetch",
     "user_visible_behavior": "Given a city name, the app resolves lat/lon and returns temperature, feels-like, humidity, wind speed, and a weather description",
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Run: python -m py_compile backend/weather.py",
       "Run: python -c \"import asyncio; from backend.weather import geocode, fetch_weather; print(asyncio.run(geocode('Tokyo')))\"",
       "Confirm lat, lon, and country code are returned"
     ],
-    "evidence": "",
+    "evidence": "geocode('Tokyo') → {name: Tokyo, country: JP, lat: 35.6895, lon: 139.69171}. fetch_weather() → {temperature_c: 21.2, feels_like_c: 25.2, humidity_pct: 99, wind_speed_kmh: 2.2, weather_desc: Mainly clear}",
     "notes": "Use httpx async client. Geocoding endpoint: geocoding-api.open-meteo.com. Weather endpoint: api.open-meteo.com. Translate WMO weather codes to human labels."
   },
   {

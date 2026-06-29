@@ -7,7 +7,7 @@
 | Repository root | `weather-recorder/` |
 | Start command | `uvicorn backend.main:app --reload --port 8000` |
 | Verification command | `bash init.sh` |
-| Highest priority unfinished feature | `weather-fetch` |
+| Highest priority unfinished feature | `api-search` |
 | Current blocker | None |
 
 ---
@@ -22,6 +22,18 @@
 ---
 
 ## Session Records
+
+### Session 2 — weather-fetch
+
+- **Goal:** Geocode city names and fetch live weather via Open-Meteo
+- **Completed:** backend/weather.py with geocode(), fetch_weather(), WMO code map, CityNotFound and WeatherAPIError exceptions
+- **Verification run:** Live API test — geocode('Tokyo') and fetch_weather() both returned correct data
+- **Evidence:** Tokyo → lat 35.6895, lon 139.69171, JP. Weather → 21.2°C, feels like 25.2°C, 99% humidity, 2.2 km/h, Mainly clear
+- **Commits:** feat: weather-fetch — Open-Meteo geocoding and weather fetch
+- **Known risks:** None — Open-Meteo is free, no rate limits for this scale
+- **Next best action:** api-search — POST /api/search in main.py wiring geocode + fetch_weather + DB insert
+
+---
 
 ### Session 1 — db-init
 
