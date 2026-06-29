@@ -29,6 +29,7 @@ class SearchRequest(BaseModel):
     latitude: float | None = None
     longitude: float | None = None
     country: str | None = None
+    admin1: str | None = None
 
 
 @app.get("/")
@@ -55,6 +56,7 @@ def history():
                 """
                 SELECT
                     c.name          AS city,
+                    c.admin1,
                     c.country,
                     sh.temperature_c,
                     sh.feels_like_c,
@@ -85,6 +87,7 @@ async def search(req: SearchRequest):
     if req.latitude is not None and req.longitude is not None:
         location = {
             "name": req.city,
+            "admin1": req.admin1,
             "country": req.country,
             "latitude": req.latitude,
             "longitude": req.longitude,
@@ -108,10 +111,11 @@ async def search(req: SearchRequest):
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    INSERT INTO cities (name, country, latitude, longitude)
-                    VALUES (%(name)s, %(country)s, %(latitude)s, %(longitude)s)
+                    INSERT INTO cities (name, admin1, country, latitude, longitude)
+                    VALUES (%(name)s, %(admin1)s, %(country)s, %(latitude)s, %(longitude)s)
                     ON CONFLICT (name, country) DO UPDATE
-                        SET latitude  = EXCLUDED.latitude,
+                        SET admin1    = EXCLUDED.admin1,
+                            latitude  = EXCLUDED.latitude,
                             longitude = EXCLUDED.longitude
                     RETURNING id
                     """,
@@ -139,6 +143,7 @@ async def search(req: SearchRequest):
 
     return {
         "city": location["name"],
+        "admin1": location.get("admin1"),
         "country": location["country"],
         "latitude": location["latitude"],
         "longitude": location["longitude"],

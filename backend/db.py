@@ -14,12 +14,16 @@ def init_db():
                 CREATE TABLE IF NOT EXISTS cities (
                     id         SERIAL PRIMARY KEY,
                     name       VARCHAR(120) NOT NULL,
+                    admin1     VARCHAR(120),
                     country    VARCHAR(4),
                     latitude   DOUBLE PRECISION NOT NULL,
                     longitude  DOUBLE PRECISION NOT NULL,
                     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                     UNIQUE (name, country)
                 )
+            """)
+            cur.execute("""
+                ALTER TABLE cities ADD COLUMN IF NOT EXISTS admin1 VARCHAR(120)
             """)
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS search_history (

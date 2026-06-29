@@ -75,6 +75,7 @@ async def geocode(city: str) -> dict:
     hit = results[0]
     return {
         "name": hit["name"],
+        "admin1": hit.get("admin1"),
         "country": hit.get("country_code"),
         "latitude": hit["latitude"],
         "longitude": hit["longitude"],
