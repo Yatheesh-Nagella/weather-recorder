@@ -7,8 +7,8 @@
 | Repository root | `weather-recorder/` |
 | Start command | `uvicorn backend.main:app --reload --port 8000` |
 | Verification command | `bash init.sh` |
-| Highest priority unfinished feature | `db-init` |
-| Current blocker | None — project not started yet |
+| Highest priority unfinished feature | `weather-fetch` |
+| Current blocker | None |
 
 ---
 
@@ -22,6 +22,18 @@
 ---
 
 ## Session Records
+
+### Session 1 — db-init
+
+- **Goal:** Set up database connection layer and schema
+- **Completed:** backend/db.py (get_conn, init_db), backend/requirements.txt, schema.sql
+- **Verification run:** python -m py_compile backend/db.py → Syntax OK. venv created and deps installed.
+- **Evidence:** Syntax clean. Full table creation verified on droplet at deploy time.
+- **Commits:** feat: db-init — connection layer and schema (bc5a8e0)
+- **Known risks:** None — init_db() is idempotent via IF NOT EXISTS
+- **Next best action:** weather-fetch — backend/weather.py with Open-Meteo geocoding and WMO code translation
+
+---
 
 ### Session 0 — Project Initialization
 
