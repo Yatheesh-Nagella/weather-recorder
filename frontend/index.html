@@ -224,9 +224,11 @@
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(async () => {
         try {
-          const res = await fetch(`/api/suggest?q=${encodeURIComponent(q)}`);
+          const res = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=en&format=json`
+          );
           if (!res.ok) return;
-          const items = await res.json();
+          const items = (await res.json()).results ?? [];
           if (!items.length) { clearSuggest(); return; }
           suggestList.innerHTML = '';
           items.forEach(item => {
@@ -234,15 +236,21 @@
             li.textContent = formatLoc(item);
             li.addEventListener('mousedown', (e) => {
               e.preventDefault();
-              selectedLoc = item;
-              input.value = formatLoc(item);
+              selectedLoc = {
+                name:      item.name,
+                admin1:    item.admin1 ?? null,
+                country:   item.country_code ?? null,
+                latitude:  item.latitude,
+                longitude: item.longitude,
+              };
+              input.value = formatLoc(selectedLoc);
               clearSuggest();
             });
             suggestList.appendChild(li);
           });
           suggestList.hidden = false;
         } catch { /* non-fatal */ }
-      }, 300);
+      }, 200);
     });
 
     input.addEventListener('blur', () => setTimeout(clearSuggest, 150));
