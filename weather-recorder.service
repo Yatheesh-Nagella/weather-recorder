@@ -1,0 +1,15 @@
+[Unit]
+Description=Weather Recorder (FastAPI)
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/weather-recorder
+EnvironmentFile=/opt/weather-recorder/.env
+ExecStart=/opt/weather-recorder/venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8000 --workers 2
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
