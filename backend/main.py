@@ -33,6 +33,37 @@ def serve_frontend():
     return FileResponse(FRONTEND)
 
 
+@app.get("/api/history")
+def history():
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT
+                    c.name          AS city,
+                    c.country,
+                    sh.temperature_c,
+                    sh.feels_like_c,
+                    sh.humidity_pct,
+                    sh.wind_speed_kmh,
+                    sh.weather_desc,
+                    sh.searched_at
+                FROM search_history sh
+                JOIN cities c ON c.id = sh.city_id
+                ORDER BY sh.searched_at DESC
+                LIMIT 50
+                """
+            )
+            rows = cur.fetchall()
+    except psycopg2.Error:
+        raise HTTPException(status_code=500, detail="Database error")
+    finally:
+        conn.close()
+
+    return [dict(row) for row in rows]
+
+
 @app.post("/api/search")
 async def search(req: SearchRequest):
     if not req.city.strip():

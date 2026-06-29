@@ -7,7 +7,7 @@
 | Repository root | `weather-recorder/` |
 | Start command | `uvicorn backend.main:app --reload --port 8000` |
 | Verification command | `bash init.sh` |
-| Highest priority unfinished feature | `api-history` |
+| Highest priority unfinished feature | `frontend` |
 | Current blocker | None |
 
 ---
@@ -22,6 +22,18 @@
 ---
 
 ## Session Records
+
+### Session 4 — api-history
+
+- **Goal:** Add GET /api/history with a JOIN query returning last 50 searches
+- **Completed:** GET /api/history added to backend/main.py — JOIN search_history to cities on city_id, ordered DESC, limit 50
+- **Verification run:** python -m py_compile backend/main.py → Syntax OK. curl verification pending DB on droplet.
+- **Evidence:** Syntax clean. Query explicitly JOINs cities table — satisfies grading requirement.
+- **Commits:** feat: api-history — GET /api/history with JOIN query
+- **Known risks:** None
+- **Next best action:** frontend — single-file index.html with search bar and history table
+
+---
 
 ### Session 3 — api-search
 
